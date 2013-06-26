@@ -1,0 +1,215 @@
+*
+    margin: 0
+    padding: 0
+
+body
+    background: #1b1b1b
+    color: #333
+    font: 13px/20px "Helvetica", "Arial", sans-serif
+    font-weight: 200
+
+#main
+    position: relative
+    overflow-x: hidden
+
+.blank
+    height: 44px
+
+#menu
+    position: fixed
+    top: 0
+    left: 0
+    width: 225px
+    bottom: 0
+    background: #000
+    z-index: 100
+    
+    ul
+        list-style: none
+
+        li
+            a
+                display: block
+                padding: 12px 10px
+                border-top: 1px solid #222
+                border-bottom: 1px solid #000
+                background: #1a1a1a
+                color: #777
+                font-weight: bold
+                i
+                    margin-right: 4px
+                &:active
+                    background: #111
+
+            .search
+                display: block
+                background: #1c1c1c
+                border-bottom: 1px solid #000
+                padding: 8px 6px
+                position: relative
+                width: 225px
+                box-sizing: border-box
+                input
+                    width: 211px
+                    padding: 7px 8px 4px
+                    box-sizing: border-box
+                    background: #222
+                    border-radius: 15px
+                    border: none
+                    -webkit-appearance: none !important
+                    box-shadow: 0 1px 0 #292929, inset 0 1px 0 #111
+                    color: #aaa
+                    font: inherit
+                    font-weight: normal
+                    &::-webkit-input-placeholder
+                        color: #444
+                i
+                    position: absolute
+                    right: 20px
+                    top: 18px
+                    color: #888
+
+    .controls
+        background: #1a1a1a
+        border-top: 1px solid #222
+        padding-top: 10px
+        position: absolute
+        width: 225px
+        bottom: 0
+        a
+            display: block
+            float: left
+            width: 75px
+            height: 44px
+            line-height: 34px
+            text-align: center
+            color: #888
+            text-shadow: 0 -1px 1px #000
+        input[type=range]
+            width: 205px
+            margin-left: 10px
+            margin-bottom: 10px
+            -webkit-appearance: none !important
+            background: #282828
+        #now_playing .song
+            color: #eee
+            padding: 0 10px 10px
+            border-bottom: 1px solid #222
+            margin-bottom: 10px
+
+#header
+    position: fixed
+    z-index: 999
+    top: 0
+    width: 100%
+    height: 44px
+    background: -webkit-linear-gradient(#353535, #252525)
+    border-bottom: 1px solid #333
+    box-shadow: 2px 0 3px #000
+
+    h1
+        font-size: 16px
+        text-transform: uppercase
+        line-height: 48px
+        font-weight: bold
+        padding-left: 7px
+        color: #000
+        text-shadow: 0 1px 0px #444
+
+    .btn
+        text-decoration: none
+        display: block
+        float: left
+        height: 44px
+        line-height: 48px
+        font-size: 16px
+        padding: 0 16px
+        color: #777
+        text-shadow: 0 -1px 1px #000
+        box-sizing: border-box
+        &:active
+            background: #252525
+    
+    .center
+        text-align: center
+
+    .left, .right
+        position: absolute
+        top: 0
+
+    .left
+        left: 0
+
+    .right
+        right: 0
+
+.volume-dropdown
+    position: absolute
+    right: 1px
+    top: 36px
+    background: #333
+    border: 1px solid #353535
+    border-radius: 3px
+    box-shadow: 0 2px 5px #000
+    a
+        font-size: 10px
+        line-height: 14px
+        display: block
+        padding: 8px 14px
+        text-align: center
+
+ul#songs
+    z-index: 200
+    list-style: none
+    position: relative
+    background: #1b1b1b
+    border-left: 1px solid #222
+    box-shadow: -3px 0 10px rgba(#000, 0.4)
+    -webkit-transform: translate3d(0,0,0)
+    -webkit-backface-visibility: hidden
+    -webkit-transition: -webkit-transform 0.5s
+    &.opened
+        -webkit-transform: translate3d(225px,0,0)
+
+    li
+        a
+            display: block
+            padding: 5px 7px 9px
+            border-top: 1px solid #222
+            border-bottom: 1px solid #000
+            color: #aaa
+            text-shadow: 0 -2px 0 #000
+            text-decoration: none
+            position: relative
+
+img
+    position: relative
+    top: 5px
+    margin-left: 1px
+    margin-right: 7px
+    height: 20px
+
+.loading
+    position: fixed
+    z-index: 400
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    background: #111
+    .loader
+        position: absolute
+        width: 32px
+        height: 32px
+        background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABV0RVh0Q3JlYXRpb24gVGltZQA2LzI1LzEzt7PU2QAAAB50RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNS4xqx9I6wAAAelJREFUWIXFlzFPGzEUx39xWFCHAgvo1IGlS6dEb+tSJuZ8BPgG+UaEuRJNxkosHcr2pDB264B0UqWiBEKLurTDOYnj+u6c4y75Sx5yF7//z+/sZ7tFpESkA/SAE6ADvLavWqH/q2pU3GBnz7gH9IEPVWKUgeR2FpFjYFBgHAVQBmJyzHvAuMT8FvgSY25jBp//Ry8iZ8BFTpxLYKiqw3VMXPmZWAGwI/8U6DcC+qr6vdQhAsSFWADYbz5mObvnOlfVQYzxOiBzCHcODALm3armrkmRDCxS70+4c1UdVzUvg5hnZ56Bvvd+9JKRx0IAGFvh/NH7QI1IRDBk5dXVZexsX0dFhejEexZc403JkG0sC+UVmToUyoJhdendNmWeJ38vmGwb4HmbAI/AzqYBdoCfQNsCJJsGMMAN2befAlMRed+UWWhzMsC1NZ/Y1m0KICQDfGaZgQnQEZGDuo3ytmajqt+Arx7Ead0AIanqYhVcOeZT4EhE3tZlVHQwaQOkaZomSZLY3w+27SdJcpem6Z8mzEMnoo/AD1Yz8U5E9uo2d+UfSt+QrYIZWV2Y2XYP/Iq97VQ6lDqdD8kKkg8RDLCOcahv8FYjIq+AXeAJ+F0aNVIh8KKrWQv426R5IYAD0ohxNEBVkNgJ+w+diKjkw4rTgQAAAABJRU5ErkJggg==") no-repeat center center
+        -webkit-animation-name: rotate
+        -webkit-animation-duration: 1.5s
+        -webkit-animation-iteration-count: infinite
+        -webkit-animation-timing-function: linear
+
+@-webkit-keyframes rotate
+    from
+        -webkit-transform: rotate(0deg)
+    to
+        -webkit-transform: rotate(360deg)
+

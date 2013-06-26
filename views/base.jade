@@ -1,0 +1,39 @@
+!!!
+html
+    head
+        meta(name="apple-mobile-web-app-capable", content="yes")
+        meta(name="HandheldFriendly", content="True")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no")
+        meta(name="apple-mobile-web-app-status-bar-style", content="black")
+        link(rel="stylesheet", type="text/css", href="/css/font-awesome.min.css")
+        link(rel="stylesheet", href="/base.css")
+        script(src="/js/jquery.min.js")
+        script(src="/base.js")
+    body(ontouchstart="")
+        #main
+            #menu
+                .blank
+                ul
+                    li
+                        .search
+                            i.icon-search
+                            input(placeholder="Search...", autocapitalize="off", autocorrect="off")
+                    li: a.load-stream
+                        i.icon-leaf
+                        |  Stream
+                    li: a.load-favorites
+                        i.icon-heart
+                        |  Favorites
+                .controls
+                    #now_playing
+                    a.last: i.icon-step-backward
+                    a.stop: i.icon-pause
+                    a.next: i.icon-step-forward
+                    input(type="range", name="volume")
+            #header
+                .center: h1 Soundberry
+                .left: a.btn.menu: i.icon-reorder
+                .right: a.btn.refresh: i.icon-refresh
+            .blank
+            ul#songs
+            .loading: .loader
