@@ -18,7 +18,7 @@ $ ->
         $('.loading').width($('#content').width())
         #$('.loading').css
             #opacity: 1.0
-        $('.loading').fadeIn()
+        $('.loading').show()
         $('.loader').css
             left: $('.loading').width()/2 - 16
             top: $('.loading').height()/2 - 16
@@ -28,20 +28,23 @@ $ ->
         , 200
 
     # Song playback
-    hammer = $('.container').hammer()
-    hammer.on 'tap', 'a', ->
-        console.log "tapped #{ $(this).attr('href') }"
-        load_content $(this).attr('href')
+    hammer = $('body').hammer()
+    hammer.on 'tap', 'a', (e) ->
+        if $(this).attr('href')
+            e.preventDefault()
+            console.log "tapped #{ $(this).attr('href') }"
+            load_content $(this).attr('href')
     hammer.on 'hold', 'a', ->
         console.log "held #{ $(this).attr('href') }"
         #$.get "/info/#{ $(this).attr('href').split('/')[2] }", (data)
         #   -> $('#info').html(data)
+    $('body').on 'click', 'a', (e) -> e.preventDefault()
 
     # Playback buttons
-    $('a.next').on 'click', (e) -> e.preventDefault(); $.get '/next', load_now_playing
-    $('a.last').on 'click', (e) -> e.preventDefault(); $.get '/last', load_now_playing
-    $('a.stop').on 'click', (e) -> e.preventDefault(); $.get '/stop', -> $('#now_playing').empty()
-    $('a.refresh').on 'click', (e) -> location.reload(true)
+    hammer.on 'tap', 'a.next', (e) -> e.preventDefault(); $.get '/next', load_now_playing
+    hammer.on 'tap', 'a.last', (e) -> e.preventDefault(); $.get '/last', load_now_playing
+    hammer.on 'tap', 'a.stop', (e) -> e.preventDefault(); $.get '/stop', -> $('#now_playing').empty()
+    hammer.on 'tap', 'a.refresh', (e) -> location.reload(true)
 
     load_content = (content_url) ->
         $('.container').empty()
@@ -64,7 +67,7 @@ $ ->
 
     # Searching
     window.search_type = 'tracks'
-    $('.search a.btn-mini').on 'click', ->
+    hammer.on 'tap', '.search a.btn-mini', ->
         window.search_type = $(this).attr('id').split('-')[2]
         $('.search a.btn-mini').removeClass('selected')
         $(this).addClass('selected')
@@ -92,8 +95,7 @@ $ ->
         else
             open_menu()
         window.menu_open = !window.menu_open
-    $('a.menu').on 'touchstart', toggle_menu
-    $('a.menu').on 'click', toggle_menu
+    hammer.on 'tap', 'a.menu', toggle_menu
     #open_menu()
 
     # Volume changer
