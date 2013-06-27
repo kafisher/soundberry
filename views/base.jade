@@ -7,6 +7,7 @@ html
         meta(name="apple-mobile-web-app-status-bar-style", content="black")
         link(rel="stylesheet", type="text/css", href="/css/font-awesome.min.css")
         link(rel="stylesheet", href="/css/base.css")
+        link(rel="stylesheet", href="/css/#{ theme || 'dark' }.css")
     body(ontouchstart="")
         #main
             #menu
@@ -29,7 +30,7 @@ html
                     a.next: i.icon-step-forward
                     input(type="range", name="volume")
             #header
-                .center: h1 Soundberry
+                .center: h1 #{ title || 'Soundberry' }
                 .left: a.btn.menu: i.icon-reorder
                 .right: a.btn.refresh: i.icon-refresh
             #content
