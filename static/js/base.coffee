@@ -122,6 +122,6 @@ $ ->
             clearTimeout volume_change_timer
         window.volume_change_timer = setTimeout ->
             $('input[name=volume]').trigger 'changed'
-        , 300
+        , 150
     $('input[name=volume]').on 'changed', (e) ->
         $.get "/volume/#{ $(this).val() }"
