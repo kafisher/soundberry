@@ -40,7 +40,8 @@ root.play_process = null
 start_index = if argv._[0]? then argv._[0] else 0
 
 sc.users.get 929224, (user) ->
-    user.favorites (favorites) ->
+    root.me = user
+    root.me.favorites (favorites) ->
         root.favorites = favorites
         root.current_set = (f.id for f in favorites)
         root.now_playing = favorites[start_index]
@@ -71,9 +72,15 @@ setSystemVolume = (v) ->
     exec "amixer -M set PCM #{ v }%"
 
 render_base = (options) -> jade.compile(fs.readFileSync('views/base.jade').toString())(options)
-render_songs = (songs) -> jade.compile(fs.readFileSync('views/songs.jade').toString())({songs: songs})
+render_tracks = (tracks) -> jade.compile(fs.readFileSync('views/tracks.jade').toString())({tracks: tracks})
+render_users = (users) -> jade.compile(fs.readFileSync('views/users.jade').toString())({users: users})
+render_user = (user) -> jade.compile(fs.readFileSync('views/user.jade').toString())({user: user})
+render_user_tracks = (user, tracks) -> jade.compile(fs.readFileSync('views/user.jade').toString())({user: user, tracks: tracks})
 render_now_playing = -> jade.compile(fs.readFileSync('views/now_playing.jade').toString())({song: root.now_playing})
 render_info = (song) -> jade.compile(fs.readFileSync('views/info.jade').toString())({song: song})
+render_ =
+    tracks: render_tracks
+    users: render_users
 
 server = http.createServer (req, res) ->
     console.log "[debug] Handling #{ req.url }"
@@ -87,14 +94,34 @@ server = http.createServer (req, res) ->
     else if req.url == '/favorites'
         res.setHeader 'Content-Type', 'text/html'
         if root.favorites?
-            res.end render_songs root.favorites
+            res.end render_tracks root.favorites
         else
             res.end 'error'
+    else if req.url == '/followers'
+        res.setHeader 'Content-Type', 'text/html'
+        if root.followers?
+            res.end render_users root.followers
+        else
+            root.me.followers (followers) ->
+                root.followers = followers
+                res.end render_users root.followers
+    else if req.url == '/followings'
+        res.setHeader 'Content-Type', 'text/html'
+        if root.followings?
+            res.end render_users root.followings
+        else
+            root.me.followings (followings) ->
+                root.followings = followings
+                res.end render_users root.followings
     else if pathname == '/search'
-        sc.tracks.search query.q, (found) ->
+        res.setHeader 'Content-Type', 'text/html'
+        console.log "query.type is #{ query.type }"
+        type_class = sc[query.type]
+        type_class.search query.q, (found) ->
             root.searched = found
-            root.current_set = (f.id for f in found)
-            res.end render_songs found
+            if query.type == 'tracks'
+                root.current_set = (f.id for f in found)
+            res.end render_[query.type] found
     else if req.url == '/now_playing'
         res.setHeader 'Content-Type', 'text/html'
         if root.current_set?
@@ -104,6 +131,13 @@ server = http.createServer (req, res) ->
     else if matched = req.url.match /\/info\/(\d+)/
         sc.tracks.get Number(matched[1]), (track) ->
             res.end render_info track
+
+    # User views
+    else if matched = req.url.match /\/users\/(\d+)/
+        res.setHeader 'Content-Type', 'text/html'
+        sc.users.get Number(matched[1]), (user) ->
+            user.tracks (tracks) ->
+                res.end render_user_tracks(user, tracks)
 
     # Playback actions
     else if matched = req.url.match /\/play\/(\d+)/

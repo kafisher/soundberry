@@ -9,6 +9,9 @@ body
 
 a
     -webkit-user-select: none !important
+    text-decoration: none
+    color: inherit
+
 
 #main
     //-webkit-backface-visibility: hidden
@@ -40,6 +43,18 @@ a
                 i
                     margin-right: 4px
 
+            .right
+                position: absolute
+                right: 0
+                top: 0
+
+            a.btn-mini
+                display: inline-block
+                padding: 5px 2px 4px 4px
+                margin: 10px 5px 0 0
+                border-radius: 4px
+                text-align: center
+
             .search
                 display: block
                 padding: 8px 6px
@@ -47,18 +62,18 @@ a
                 width: 225px
                 box-sizing: border-box
                 input
-                    width: 211px
-                    padding: 7px 8px 4px
+                    width: 151px
+                    padding: 7px 8px 4px 10px
                     box-sizing: border-box
                     border-radius: 15px
                     border: none
                     -webkit-appearance: none !important
                     font: inherit
                     font-weight: normal
-                i
+                i.icon-search
                     position: absolute
-                    right: 20px
-                    top: 18px
+                    right: 80px
+                    top: 19px
 
     .controls
         padding-top: 8px
@@ -117,7 +132,6 @@ a
         
         #now_playing .song
             padding: 0 10px 13px
-            border-bottom: 1px solid #222
             margin-bottom: 10px
 
 #info
@@ -144,7 +158,6 @@ a
         padding-left: 7px
 
     .btn
-        text-decoration: none
         display: block
         float: left
         height: 44px
@@ -187,25 +200,24 @@ a
     &.opened
         -webkit-transform: translate3d(225px,0,0)
 
+    ul
+        list-style: none
+
+        li
+            &.selected
+                a
+                    opacity: 0.8
+            a
+                display: block
+                padding: 5px 7px 9px
+                position: relative
+
 @media (min-width: 600px)
     a.btn.menu
         display: none !important
     #content
         -webkit-transform: translate3d(225px,0,0) !important
         margin-right: 225px
-
-ul#songs
-    list-style: none
-
-    li
-        &.selected
-            a
-                opacity: 0.8
-        a
-            display: block
-            padding: 5px 7px 9px
-            text-decoration: none
-            position: relative
 
 img
     position: relative
