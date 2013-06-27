@@ -6,9 +6,7 @@ html
         meta(name="viewport", content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no")
         meta(name="apple-mobile-web-app-status-bar-style", content="black")
         link(rel="stylesheet", type="text/css", href="/css/font-awesome.min.css")
-        link(rel="stylesheet", href="/base.css")
-        script(src="/js/jquery.min.js")
-        script(src="/base.js")
+        link(rel="stylesheet", href="/css/base.css")
     body(ontouchstart="")
         #main
             #menu
@@ -34,6 +32,10 @@ html
                 .center: h1 Soundberry
                 .left: a.btn.menu: i.icon-reorder
                 .right: a.btn.refresh: i.icon-refresh
-            .blank
-            ul#songs
-            .loading: .loader
+            #content
+                .blank
+                .loading: img.loader(src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABV0RVh0Q3JlYXRpb24gVGltZQA2LzI1LzEzt7PU2QAAAB50RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNS4xqx9I6wAAAelJREFUWIXFlzFPGzEUx39xWFCHAgvo1IGlS6dEb+tSJuZ8BPgG+UaEuRJNxkosHcr2pDB264B0UqWiBEKLurTDOYnj+u6c4y75Sx5yF7//z+/sZ7tFpESkA/SAE6ADvLavWqH/q2pU3GBnz7gH9IEPVWKUgeR2FpFjYFBgHAVQBmJyzHvAuMT8FvgSY25jBp//Ry8iZ8BFTpxLYKiqw3VMXPmZWAGwI/8U6DcC+qr6vdQhAsSFWADYbz5mObvnOlfVQYzxOiBzCHcODALm3armrkmRDCxS70+4c1UdVzUvg5hnZ56Bvvd+9JKRx0IAGFvh/NH7QI1IRDBk5dXVZexsX0dFhejEexZc403JkG0sC+UVmToUyoJhdendNmWeJ38vmGwb4HmbAI/AzqYBdoCfQNsCJJsGMMAN2befAlMRed+UWWhzMsC1NZ/Y1m0KICQDfGaZgQnQEZGDuo3ytmajqt+Arx7Ead0AIanqYhVcOeZT4EhE3tZlVHQwaQOkaZomSZLY3w+27SdJcpem6Z8mzEMnoo/AD1Yz8U5E9uo2d+UfSt+QrYIZWV2Y2XYP/Iq97VQ6lDqdD8kKkg8RDLCOcahv8FYjIq+AXeAJ+F0aNVIh8KKrWQv426R5IYAD0ohxNEBVkNgJ+w+diKjkw4rTgQAAAABJRU5ErkJggg==")
+                ul#songs
+        script(src="/js/jquery.min.js")
+        script(src="/js/hammer.min.js")
+        script(src="/js/base.js")

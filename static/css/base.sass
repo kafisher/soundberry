@@ -7,8 +7,13 @@ body
     color: #333
     font: 13px/20px "Helvetica", "Arial", sans-serif
     font-weight: 200
+    -webkit-touch-callout: none !important
+
+a
+    -webkit-user-select: none !important
 
 #main
+    //-webkit-backface-visibility: hidden
     position: relative
     overflow-x: hidden
 
@@ -16,6 +21,9 @@ body
     height: 44px
 
 #menu
+    display: none
+    -webkit-backface-visibility: hidden
+    -webkit-transform: translate3d(0,0,0)
     position: fixed
     top: 0
     left: 0
@@ -78,24 +86,83 @@ body
         bottom: 0
         a
             display: block
+            box-sizing: border-box
             float: left
             width: 75px
             height: 44px
             line-height: 34px
-            text-align: center
             color: #888
             text-shadow: 0 -1px 1px #000
+            text-align: center
+            &:first-child
+                text-align: left
+                padding-left: 0px
+            &:first-child
+                text-align: right
+                padding-right: 0px
         input[type=range]
-            width: 205px
-            margin-left: 10px
-            margin-bottom: 10px
+            width: 175px
+            margin-left: 25px
+            margin-bottom: 20px
             -webkit-appearance: none !important
-            background: #282828
+            background: -webkit-linear-gradient(#101010, #2a2a2a)
+            box-shadow: inset 0 -1px 0px #333
+            border-radius: 10px
+            height: 5px
+            &::-webkit-slider-thumb
+                -webkit-appearance: none !important
+                height: 33px
+                width: 27px
+                border-radius: 60px
+                //position: absolute
+                //bottom: 5px
+                //border: 5px solid #222
+                //background: -webkit-linear-gradient(#333, #222)
+                //background: #282828 url(/images/volume.png) no-repeat center center
+                background: #333
+                box-shadow: 0 0 10px rgba(#000, 0.2), inset 0 2px 1px #444
+                //-webkit-transition: -webkit-transform 0.2s
+                -webkit-transition: all 0.2s
+                //-webkit-transform: scale3d(0.8, 0.8, 1.0)
+                //-webkit-transform: translate3d(0.0, 0.0, 0.0)
+                position: relative
+                &:active
+                    height: 70px
+                    bottom: 20px
+                    //-webkit-transform: scale3d(2.2, 2.2, 1.0)
+                    //box-shadow: 0 0 15px rgba(#000, 0.3), inset 0 2px 3px #444
+                &:after
+                    display:block
+                    content:'J'
+                    font-family: FontAwesome
+                    content: "\f028"
+                    left: 0
+                    right: 0
+                    top: 0
+                    bottom: 0
+                    font-size: 15px
+                    color: #000
+                    line-height: 33px
+                    text-shadow: 0 1px 1px #555
+                    text-align: center
+        
         #now_playing .song
             color: #eee
             padding: 0 10px 10px
             border-bottom: 1px solid #222
             margin-bottom: 10px
+
+#info
+    position: absolute
+    top: 100px
+    left: 50px
+    width: 200px
+    height: 200px
+    background: #777
+    padding: 20px
+    color: #000
+    border-radius: 3px
+    box-shadow: 0 0 5px rgba(#000, 0.5)
 
 #header
     position: fixed
@@ -124,7 +191,7 @@ body
         line-height: 48px
         font-size: 16px
         padding: 0 16px
-        color: #777
+        color: #555
         text-shadow: 0 -1px 1px #000
         box-sizing: border-box
         &:active
@@ -158,29 +225,48 @@ body
         padding: 8px 14px
         text-align: center
 
-ul#songs
+#content
     z-index: 200
-    list-style: none
     position: relative
+    top: 0
     background: #1b1b1b
     border-left: 1px solid #222
     box-shadow: -3px 0 10px rgba(#000, 0.4)
     -webkit-transform: translate3d(0,0,0)
-    -webkit-backface-visibility: hidden
+    //-webkit-backface-visibility: hidden
     -webkit-transition: -webkit-transform 0.5s
     &.opened
         -webkit-transform: translate3d(225px,0,0)
 
+@media (min-width: 600px)
+    a.btn.menu
+        display: none !important
+    #content
+        -webkit-transform: translate3d(225px,0,0) !important
+        margin-right: 225px
+
+ul#songs
+    //-webkit-backface-visibility: hidden
+    list-style: none
+
     li
+        border-top: 1px solid #222
+        border-bottom: 1px solid #000
+        &.selected
+            background-color: #282828
+            border-bottom-color: #333
+            a
+                opacity: 0.8
         a
             display: block
             padding: 5px 7px 9px
-            border-top: 1px solid #222
-            border-bottom: 1px solid #000
             color: #aaa
             text-shadow: 0 -2px 0 #000
             text-decoration: none
             position: relative
+
+    li.selected+li.selected
+        border-top-color: #252525
 
 img
     position: relative
@@ -190,18 +276,21 @@ img
     height: 20px
 
 .loading
-    position: fixed
+    //-webkit-backface-visibility: hidden
+    -webkit-transform: translate3d(0,0,0)
+    position: absolute
     z-index: 400
     top: 0
     left: 0
     right: 0
     bottom: 0
     background: #111
+    //opacity: 1.0
+    //-webkit-transition: opacity 0.4s
     .loader
         position: absolute
         width: 32px
         height: 32px
-        background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABV0RVh0Q3JlYXRpb24gVGltZQA2LzI1LzEzt7PU2QAAAB50RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNS4xqx9I6wAAAelJREFUWIXFlzFPGzEUx39xWFCHAgvo1IGlS6dEb+tSJuZ8BPgG+UaEuRJNxkosHcr2pDB264B0UqWiBEKLurTDOYnj+u6c4y75Sx5yF7//z+/sZ7tFpESkA/SAE6ADvLavWqH/q2pU3GBnz7gH9IEPVWKUgeR2FpFjYFBgHAVQBmJyzHvAuMT8FvgSY25jBp//Ry8iZ8BFTpxLYKiqw3VMXPmZWAGwI/8U6DcC+qr6vdQhAsSFWADYbz5mObvnOlfVQYzxOiBzCHcODALm3armrkmRDCxS70+4c1UdVzUvg5hnZ56Bvvd+9JKRx0IAGFvh/NH7QI1IRDBk5dXVZexsX0dFhejEexZc403JkG0sC+UVmToUyoJhdendNmWeJ38vmGwb4HmbAI/AzqYBdoCfQNsCJJsGMMAN2befAlMRed+UWWhzMsC1NZ/Y1m0KICQDfGaZgQnQEZGDuo3ytmajqt+Arx7Ead0AIanqYhVcOeZT4EhE3tZlVHQwaQOkaZomSZLY3w+27SdJcpem6Z8mzEMnoo/AD1Yz8U5E9uo2d+UfSt+QrYIZWV2Y2XYP/Iq97VQ6lDqdD8kKkg8RDLCOcahv8FYjIq+AXeAJ+F0aNVIh8KKrWQv426R5IYAD0ohxNEBVkNgJ+w+diKjkw4rTgQAAAABJRU5ErkJggg==") no-repeat center center
         -webkit-animation-name: rotate
         -webkit-animation-duration: 1.5s
         -webkit-animation-iteration-count: infinite
