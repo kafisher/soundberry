@@ -70,27 +70,27 @@ setSystemVolume = (v) ->
     root.currentVolume = v
     exec "amixer -M set PCM #{ v }%"
 
-render_base = ->
-    jade.compile(fs.readFileSync('views/base.jade').toString())()
+render_base = (options) -> jade.compile(fs.readFileSync('views/base.jade').toString())(options)
 render_songs = (songs) -> jade.compile(fs.readFileSync('views/songs.jade').toString())({songs: songs})
 render_now_playing = -> jade.compile(fs.readFileSync('views/now_playing.jade').toString())({song: root.now_playing})
 render_info = (song) -> jade.compile(fs.readFileSync('views/info.jade').toString())({song: song})
 
 server = http.createServer (req, res) ->
     console.log "[debug] Handling #{ req.url }"
-
+    url_parsed = url.parse(req.url, true)
+    query = url_parsed.query
+    pathname = url_parsed.pathname
     # Base & song lists
-    if req.url == '/'
+    if pathname == '/'
         res.setHeader 'Content-Type', 'text/html'
-        res.end render_base()
+        res.end render_base query
     else if req.url == '/favorites'
         res.setHeader 'Content-Type', 'text/html'
         if root.favorites?
             res.end render_songs root.favorites
         else
             res.end 'error'
-    else if req.url.indexOf('/search') == 0
-        query = url.parse(req.url, true).query
+    else if pathname == '/search'
         sc.tracks.search query.q, (found) ->
             root.searched = found
             root.current_set = (f.id for f in found)
@@ -132,8 +132,8 @@ server = http.createServer (req, res) ->
     # Static files
     else if req.url == '/js/base.js'
         res.end coffee.compile(fs.readFileSync('static/js/base.coffee').toString())
-    else if req.url == '/css/base.css'
-        res.end styl(fs.readFileSync('static/css/base.sass').toString(), {whitespace: true}).toString()
+    else if matched = req.url.match /\/css\/(\w+).css/
+        res.end styl(fs.readFileSync("static/css/#{ matched[1] }.sass").toString(), {whitespace: true}).toString()
     else
         ecstatic(req, res)
 
