@@ -14,9 +14,10 @@ combine_objs = (a, b) ->
         c[k] = v
     return c
 
-max_offset = 250
+chunk_length = 50
+default_limit = 50
 
-fetch_data = (path, args, callback, offset = 0) ->
+fetch_data = (path, args, callback, offset=0, limit=default_limit) ->
     query_args = combine_objs default_args, {offset: offset}
     query_args = combine_objs query_args, args if args?
     query_string = qs.stringify query_args
@@ -24,16 +25,16 @@ fetch_data = (path, args, callback, offset = 0) ->
         host: "api.soundcloud.com"
         port: 80
         path: "/#{path}.json?#{query_string}"
-    #console.log "[debug] I will try to retreive #{ options.path }"
+    console.log "[debug] I will try to retreive #{ options.path }"
     data = ""
     request = http.get options, (res) ->
         res.on 'data', (chunk) -> data += chunk
         res.on 'end', ->
             data_part = JSON.parse data
-            if data_part.length == 50 and offset < max_offset
+            if (data_part.length == chunk_length) and (offset + chunk_length < limit)
                 with_more = (more_data) ->
                     callback data_part.concat more_data
-                fetch_data path, args, with_more, offset + 50
+                fetch_data path, args, with_more, offset + chunk_length
             else
                 callback data_part
 
