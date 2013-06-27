@@ -54,23 +54,20 @@ setVolume = (v) ->
     root.mu = 0
     root.targetVolume = v
     root.startingVolume = root.currentVolume
-    root.dmu = 0.1 * 100.0/Math.abs(root.targetVolume-root.startingVolume)
-    console.log "dmu = #{ root.dmu }"
+    root.dmu = 0.15 * 100.0/Math.abs(root.targetVolume-root.startingVolume)
     clearTimeout root.interpolationTimeout
     interpolateVolumes()
 
 interpolateVolumes = ->
-    console.log "t = #{ root.mu }"
-    if Math.abs(root.targetVolume - root.currentVolume) > 1
+    if root.mu < 1.0
         mu2 = (1-Math.cos(root.mu*Math.PI))/2
         v = root.startingVolume*(1-mu2)+root.targetVolume*mu2
         setSystemVolume v
         root.mu += root.dmu
-        root.interpolationTimeout = setTimeout interpolateVolumes, 100
+        root.interpolationTimeout = setTimeout interpolateVolumes, 150
 
 setSystemVolume = (v) ->
     root.currentVolume = v
-    console.log "amixer -M set PCM #{ v }%"
     exec "amixer -M set PCM #{ v }%"
 
 render_base = ->
@@ -129,7 +126,6 @@ server = http.createServer (req, res) ->
     else if req.url == '/status'
         res.end "playing #{ root.now_playing.title }."
     else if matched = req.url.match /\/volume\/(\d+)/
-        console.log 'set volume?'
         setVolume Number(matched[1])
         res.end "set volume to #{ matched[1] }%"
 
