@@ -72,9 +72,14 @@ setSystemVolume = (v) ->
 
 render_base = ->
     jade.compile(fs.readFileSync('views/base.jade').toString())()
-render_songs = (songs) -> jade.compile(fs.readFileSync('views/songs.jade').toString())({songs: songs})
+render_tracks = (tracks) -> jade.compile(fs.readFileSync('views/tracks.jade').toString())({tracks: tracks})
+render_users = (users) -> jade.compile(fs.readFileSync('views/users.jade').toString())({users: users})
+render_user = (user) -> jade.compile(fs.readFileSync('views/user.jade').toString())({user: user})
 render_now_playing = -> jade.compile(fs.readFileSync('views/now_playing.jade').toString())({song: root.now_playing})
 render_info = (song) -> jade.compile(fs.readFileSync('views/info.jade').toString())({song: song})
+render_ =
+    tracks: render_tracks
+    users: render_users
 
 server = http.createServer (req, res) ->
     console.log "[debug] Handling #{ req.url }"
@@ -86,15 +91,19 @@ server = http.createServer (req, res) ->
     else if req.url == '/favorites'
         res.setHeader 'Content-Type', 'text/html'
         if root.favorites?
-            res.end render_songs root.favorites
+            res.end render_tracks root.favorites
         else
             res.end 'error'
     else if req.url.indexOf('/search') == 0
+        res.setHeader 'Content-Type', 'text/html'
         query = url.parse(req.url, true).query
-        sc.tracks.search query.q, (found) ->
+        console.log "query.type is #{ query.type }"
+        type_class = sc[query.type]
+        type_class.search query.q, (found) ->
             root.searched = found
-            root.current_set = (f.id for f in found)
-            res.end render_songs found
+            if query.type == 'tracks'
+                root.current_set = (f.id for f in found)
+            res.end render_[query.type] found
     else if req.url == '/now_playing'
         res.setHeader 'Content-Type', 'text/html'
         if root.current_set?
@@ -104,6 +113,12 @@ server = http.createServer (req, res) ->
     else if matched = req.url.match /\/info\/(\d+)/
         sc.tracks.get Number(matched[1]), (track) ->
             res.end render_info track
+
+    # User views
+    else if matched = req.url.match /\/users\/(\d+)/
+        res.setHeader 'Content-Type', 'text/html'
+        sc.users.get Number(matched[1]), (user) ->
+            res.end render_user user
 
     # Playback actions
     else if matched = req.url.match /\/play\/(\d+)/

@@ -28,33 +28,10 @@ $ ->
         , 200
 
     # Song playback
-    window.long_timer = null
-    window.long_pressed = null
-    $('#songs').on 'click', 'li a', (e) -> e.preventDefault()
-    handle_down = (e) ->
-        e.preventDefault()
-        window.long_pressed = false
-        window.long_timer = setTimeout =>
-            console.log 'long press'
-            $(this).closest('li').toggleClass('selected')
-            window.long_pressed = true
-        , 500
-    handle_up = (e) ->
-        e.preventDefault()
-        clearTimeout window.long_timer
-        if not window.long_pressed
-            console.log 'short press'
-            #//$.get $(this).attr('href'), ->
-            #    load_now_playing()
-    up_function = if is_ios then 'touchstart' else 'mouseup'
-    down_function = if is_ios then 'touchend' else 'mousedown'
-    #$('#songs').on up_function, 'li a', handle_up
-    #$('#songs').on down_function, 'li a', handle_down
-
-    hammer = $('#songs').hammer()
+    hammer = $('.container').hammer()
     hammer.on 'tap', 'a', ->
         console.log "tapped #{ $(this).attr('href') }"
-        $.get $(this).attr('href')
+        load_content $(this).attr('href')
     hammer.on 'hold', 'a', ->
         console.log "held #{ $(this).attr('href') }"
         #$.get "/info/#{ $(this).attr('href').split('/')[2] }", (data)
@@ -66,35 +43,39 @@ $ ->
     $('a.stop').on 'click', (e) -> e.preventDefault(); $.get '/stop', -> $('#now_playing').empty()
     $('a.refresh').on 'click', (e) -> location.reload(true)
 
+    load_content = (content_url) ->
+        $('.container').empty()
+        show_loading()
+        $.get content_url, (data) ->
+            $('.container').html(data)
+            hide_loading()
+
     load_now_playing = ->
         $.get '/now_playing', (data) ->
             $('#now_playing').html data
     load_now_playing()
     setInterval load_now_playing, 1000*10
 
-    load_favorites = ->
-        $('#songs').empty()
-        show_loading()
-        $.get '/favorites', (data) ->
-            console.log 'got?'
-            setTimeout ->
-                $('#songs').html data
-                hide_loading()
-            , 50
+    load_favorites = -> load_content '/favorites'
     load_favorites()
     $('a.load-favorites').on 'click', ->
         load_favorites()
         close_menu()
 
+    # Searching
+    window.search_type = 'tracks'
+    $('.search a.btn-mini').on 'click', ->
+        window.search_type = $(this).attr('id').split('-')[2]
+        $('.search a.btn-mini').removeClass('selected')
+        $(this).addClass('selected')
+
     load_search = (q) ->
-        $('#songs').empty()
-        $('.loading').show()
-        $.get "/search?q=#{ q }", (data) ->
-            $('#songs').html data
-            hide_loading()
-    $('.search input').on 'focus', ->
-        $('.search input').val('')
-    $('.search input').on 'change', ->
+        param_str = decodeURIComponent $.param
+            q: q
+            type: window.search_type
+        load_content "/search?#{ param_str }"
+    $('.search').on 'submit', (e) ->
+        e.preventDefault()
         load_search $('.search input').val()
         $('.search input').blur()
         close_menu()

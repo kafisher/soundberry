@@ -49,17 +49,37 @@ a
                 &:active
                     background: #111
 
+            .right
+                position: absolute
+                right: 0
+                top: 0
+            a.btn-mini
+                display: inline-block
+                padding: 5px 2px 4px 4px
+                border: none
+                background: none
+                text-shadow: 0 -1px 0 rgba(#111, 0.5)
+                color: #555
+                margin: 10px 5px 0 0
+                border-radius: 4px
+                text-align: center
+                &.selected
+                    background: #222
+                    color: #888
+                    box-shadow: 0 1px 0 #292929, inset 0 1px 0 #111
+                    text-shadow: 0 1px 0 rgba(#111, 0.5)
+
             .search
                 display: block
                 background: #1c1c1c
                 border-bottom: 1px solid #000
-                padding: 8px 6px
+                padding: 10px 6px
                 position: relative
                 width: 225px
                 box-sizing: border-box
                 input
-                    width: 211px
-                    padding: 7px 8px 4px
+                    width: 151px
+                    padding: 7px 8px 4px 10px
                     box-sizing: border-box
                     background: #222
                     border-radius: 15px
@@ -71,10 +91,10 @@ a
                     font-weight: normal
                     &::-webkit-input-placeholder
                         color: #444
-                i
+                i.icon-search
                     position: absolute
-                    right: 20px
-                    top: 18px
+                    right: 80px
+                    top: 19px
                     color: #888
 
     .controls
@@ -238,35 +258,35 @@ a
     &.opened
         -webkit-transform: translate3d(225px,0,0)
 
+    ul
+        //-webkit-backface-visibility: hidden
+        list-style: none
+
+        li
+            border-top: 1px solid #222
+            border-bottom: 1px solid #000
+            &.selected
+                background-color: #282828
+                border-bottom-color: #333
+                a
+                    opacity: 0.8
+            a
+                display: block
+                padding: 5px 7px 9px
+                color: #aaa
+                text-shadow: 0 -2px 0 #000
+                text-decoration: none
+                position: relative
+
+        li.selected+li.selected
+            border-top-color: #252525
+
 @media (min-width: 600px)
     a.btn.menu
         display: none !important
     #content
         -webkit-transform: translate3d(225px,0,0) !important
         margin-right: 225px
-
-ul#songs
-    //-webkit-backface-visibility: hidden
-    list-style: none
-
-    li
-        border-top: 1px solid #222
-        border-bottom: 1px solid #000
-        &.selected
-            background-color: #282828
-            border-bottom-color: #333
-            a
-                opacity: 0.8
-        a
-            display: block
-            padding: 5px 7px 9px
-            color: #aaa
-            text-shadow: 0 -2px 0 #000
-            text-decoration: none
-            position: relative
-
-    li.selected+li.selected
-        border-top-color: #252525
 
 img
     position: relative
