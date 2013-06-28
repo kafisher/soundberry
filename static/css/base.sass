@@ -31,7 +31,7 @@ a
     width: 225px
     bottom: 0
     z-index: 100
-    
+
     ul
         list-style: none
 
@@ -50,8 +50,8 @@ a
 
             a.btn-mini
                 display: inline-block
-                padding: 5px 2px 4px 4px
-                margin: 10px 5px 0 0
+                padding: 5px 3px 4px 6px
+                margin: 10px 6px 0 0
                 border-radius: 4px
                 text-align: center
 
@@ -130,7 +130,7 @@ a
                     line-height: 33px
                     text-align: center
         
-        #now_playing .song
+        #now_playing .track
             padding: 0 10px 13px
             margin-bottom: 10px
 
@@ -179,17 +179,40 @@ a
     .right
         right: 0
 
-.volume-dropdown
-    position: absolute
-    right: 1px
-    top: 36px
-    border-radius: 3px
-    a
-        font-size: 10px
-        line-height: 14px
-        display: block
-        padding: 8px 14px
+.block
+    padding: 10px
+
+.user
+    .details
+        float: left
+    .username
+        line-height: 23px
+        margin-top: 5px
+        font-size: 20px
+        font-weight: bold
+    img.avatar
+        float: left
+        height: 40px
+        margin-top: 5px
+        margin-right: 10px
+
+.clear
+    clear: left
+
+.tabs
+    .tab
+        display: inline-block
+        box-sizing: border-box
+        padding: 4px
         text-align: center
+        span
+            display: block
+            padding: 4px
+            border-radius: 4px
+            font-weight: bold
+    &.four
+        .tab
+            width: 25%
 
 #content
     z-index: 200
@@ -211,6 +234,13 @@ a
                 display: block
                 padding: 5px 7px 9px
                 position: relative
+.track
+    img
+        position: relative
+        top: 5px
+        margin-left: 1px
+        margin-right: 7px
+        height: 20px
 
 @media (min-width: 600px)
     a.btn.menu
@@ -219,12 +249,6 @@ a
         -webkit-transform: translate3d(225px,0,0) !important
         margin-right: 225px
 
-img
-    position: relative
-    top: 5px
-    margin-left: 1px
-    margin-right: 7px
-    height: 20px
 
 .loading
     //-webkit-backface-visibility: hidden

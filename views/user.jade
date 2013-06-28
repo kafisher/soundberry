@@ -1,4 +1,14 @@
-.block
-    img(src=user.avatar_url)
-    h1= user.username
+.block.user
+    img.avatar(src=user.avatar_url)
+    .details
+        h1.username= user.username
+        p.location= user.country
+    .clear
+.tabbed
+    .tabs.four
+        a.tab.selected(href="/users/#{ user.id }/tracks"): span Tracks
+        a.tab(href="/users/#{ user.id }/favorites"): span Favorites
+        a.tab(href="/users/#{ user.id }/followings"): span Followings
+        a.tab(href="/users/#{ user.id }/followers"): span Followers
+    .tab-content
 

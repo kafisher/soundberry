@@ -133,11 +133,37 @@ server = http.createServer (req, res) ->
             res.end render_info track
 
     # User views
-    else if matched = req.url.match /\/users\/(\d+)/
+    else if matched = req.url.match /\/users\/(\d+)\/tracks/
         res.setHeader 'Content-Type', 'text/html'
         sc.users.get Number(matched[1]), (user) ->
             user.tracks (tracks) ->
-                res.end render_user_tracks(user, tracks)
+                res.end render_tracks tracks
+    else if matched = req.url.match /\/users\/(\d+)\/favorites/
+        res.setHeader 'Content-Type', 'text/html'
+        sc.users.get Number(matched[1]), (user) ->
+            user.favorites (favorites) ->
+                res.end render_tracks favorites
+    else if matched = req.url.match /\/users\/(\d+)\/followings/
+        res.setHeader 'Content-Type', 'text/html'
+        sc.users.get Number(matched[1]), (user) ->
+            user.followings (followings) ->
+                res.end render_users followings
+    else if matched = req.url.match /\/users\/(\d+)\/followers/
+        res.setHeader 'Content-Type', 'text/html'
+        sc.users.get Number(matched[1]), (user) ->
+            user.followers (followers) ->
+                res.end render_users followers
+    else if matched = req.url.match /\/users\/(\d+)/
+        res.setHeader 'Content-Type', 'text/html'
+        sc.users.get Number(matched[1]), (user) ->
+            res.end render_user user
+
+    # Track views
+    else if matched = req.url.match /\/tracks\/(\d+)/
+        res.setHeader 'Content-Type', 'text/html'
+        sc.tracks.get Number(matched[1]), (track) ->
+            res.end render_track track
+
 
     # Playback actions
     else if matched = req.url.match /\/play\/(\d+)/
