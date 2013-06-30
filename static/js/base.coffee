@@ -8,6 +8,7 @@ $ ->
     handleResize = ->
         $('#content').css
             'min-height': ($(window).height())
+        $('#menu').height($(window).height())
     $(window).on 'resize', handleResize
     handleResize()
     $('#menu').show()
@@ -16,7 +17,7 @@ $ ->
     show_loading = ($container) ->
         $container.css
             'min-height': $(window).height() - $container.offset().top
-        $loading = $('#loading').clone().addClass('loading')
+        $loading = $($('#loading-template').html())
         $loading.appendTo $container
         $loading.show()
         $loading.height($container.height())
@@ -31,7 +32,7 @@ $ ->
             $loading = $container.find('.loading')
             $loading.fadeOut =>
                 $loading.remove()
-        , 100
+        , 500
 
     # Song playback
     hammer = $('body').hammer()
@@ -43,6 +44,7 @@ $ ->
                 load_content $(this).attr('href'), $(this).closest('.tabbed').find('.tab-content')
             else
                 load_content $(this).attr('href')
+                close_menu()
     hammer.on 'tap', 'a.tab', (e) ->
         $('a.tab').removeClass('selected')
         $(this).addClass('selected')
@@ -131,6 +133,6 @@ $ ->
 
     # Initialization
     #open_menu()
-    load_favorites()
-    #load_content '/users/56303'
+    #load_favorites()
+    load_content '/users/56303'
     console.log 'loaded?'

@@ -1,6 +1,6 @@
 ul
     each track in tracks
-        li: a.track(href="/play/#{ track.id }")
+        li: a.track(href="/tracks/#{ track.id }")
             img(src=track.artwork_url)
             strong= track.user.username
             |  - #{ track.title }
