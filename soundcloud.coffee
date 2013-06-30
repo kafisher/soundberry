@@ -1,5 +1,6 @@
-http = require 'http'
 qs = require 'querystring'
+log = require './log'
+request = require 'request'
 
 consumer_key = "v9JXSG1dCP4hxUiDSjv5wg"
 
@@ -21,15 +22,12 @@ fetch_data = (path, args, callback, offset=0, limit=default_limit) ->
     query_args = combine_objs default_args, {offset: offset}
     query_args = combine_objs query_args, args if args?
     query_string = qs.stringify query_args
-    options =
-        host: "api.soundcloud.com"
-        port: 80
-        path: "/#{path}.json?#{query_string}"
-    console.log "[debug] I will try to retreive #{ options.path }"
-    data = ""
-    request = http.get options, (res) ->
-        res.on 'data', (chunk) -> data += chunk
-        res.on 'end', ->
+    options = url: "http://api.soundcloud.com/#{path}.json?#{query_string}"
+    log 'debug', "I will try to retreive #{ options.url }"
+    req = request options, (err, res, data) ->
+        if err
+            log 'err', err
+        else
             data_part = JSON.parse data
             if (data_part.length == chunk_length) and (offset + chunk_length < limit)
                 with_more = (more_data) ->
