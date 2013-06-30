@@ -1,3 +1,5 @@
+#!/usr/bin/env coffee
+
 sc = require './soundcloud'
 exec = require('child_process').exec
 http = require 'http'
@@ -118,7 +120,7 @@ server = http.createServer (req, res) ->
             res.end render_ query.type, found
     else if req.url == '/now_playing'
         res.setHeader 'Content-Type', 'text/html'
-        if root.current_set?
+        if root.now_playing?
             res.end render_now_playing()
         else
             res.end '<div class="error">Error loading now playing</div>'
