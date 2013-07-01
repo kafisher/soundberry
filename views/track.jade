@@ -1,4 +1,5 @@
 .block.track
+    a(href="/users/#{ track.user.id }")= track.user.username
     img.artwork(src=track.artwork_url)
     .details
         h1.title= track.title

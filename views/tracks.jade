@@ -1,6 +1,6 @@
 ul
     each track in tracks
-        li: a.track(track_id=track.id)
+        li: a.track(data-track_id=track.id)
             img(src=track.artwork_url)
             strong= track.user.username
             |  - #{ track.title }

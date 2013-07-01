@@ -36,6 +36,7 @@ $ ->
 
     # Song playback
     hammer = $('body').hammer()
+    $('body').on 'click', 'a', (e) -> e.preventDefault()
     hammer.on 'tap', 'a', (e) ->
         if $(this).attr('href')
             e.preventDefault()
@@ -45,14 +46,17 @@ $ ->
             else
                 load_content $(this).attr('href')
                 close_menu()
+    hammer.on 'tap', 'a.track', (e) ->
+        track_id = $(this).data('track_id')
+        load_content "/tracks/#{ track_id }"
+    hammer.on 'hold', 'a.track', (e) ->
+        track_id = $(this).data('track_id')
+        $.get "/play/#{ track_id }"
     hammer.on 'tap', 'a.tab', (e) ->
         $('a.tab').removeClass('selected')
         $(this).addClass('selected')
     hammer.on 'hold', 'a', ->
         console.log "held #{ $(this).attr('href') }"
-        #$.get "/info/#{ $(this).attr('href').split('/')[2] }", (data)
-        #   -> $('#info').html(data)
-    $('body').on 'click', 'a', (e) -> e.preventDefault()
 
     # Playback buttons
     hammer.on 'tap', 'a.next', (e) -> e.preventDefault(); $.get '/next', load_now_playing
