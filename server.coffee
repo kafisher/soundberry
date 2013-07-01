@@ -73,6 +73,16 @@ render_ = (type, data) ->
     type_data = {}; type_data[type] = data
     jade.compile(fs.readFileSync("views/#{ type }.jade").toString())(type_data)
 
+#
+# User views
+user_resource_views =
+    tracks: 'tracks'
+    favorites: 'tracks'
+    followings: 'users'
+    followers: 'users'
+
+#
+# Main server
 server = http.createServer (req, res) ->
     log 'debug', "Handling #{ req.url }"
     url_parsed = url.parse(req.url, true)
@@ -125,29 +135,15 @@ server = http.createServer (req, res) ->
         else
             res.end '<div class="error">Error loading now playing</div>'
 
-    # User views
-    else if matched = req.url.match /\/users\/(\d+)\/tracks/
+    else if matched = req.url.match /\/users\/(\d+)\/(\w+)/
         res.setHeader 'Content-Type', 'text/html'
-        sc.users.get Number(matched[1]), (user) ->
-            user.tracks (tracks) ->
-                root.current_set = (f.id for f in tracks)
-                res.end render_ 'tracks', tracks
-    else if matched = req.url.match /\/users\/(\d+)\/favorites/
-        res.setHeader 'Content-Type', 'text/html'
-        sc.users.get Number(matched[1]), (user) ->
-            user.favorites (favorites) ->
-                root.current_set = (f.id for f in favorites)
-                res.end render_ 'tracks', favorites
-    else if matched = req.url.match /\/users\/(\d+)\/followings/
-        res.setHeader 'Content-Type', 'text/html'
-        sc.users.get Number(matched[1]), (user) ->
-            user.followings (followings) ->
-                res.end render_ 'users', followings
-    else if matched = req.url.match /\/users\/(\d+)\/followers/
-        res.setHeader 'Content-Type', 'text/html'
-        sc.users.get Number(matched[1]), (user) ->
-            user.followers (followers) ->
-                res.end render_ 'users', followers
+        user_id = Number matched[1]
+        types = matched[2]
+        sc.users.get user_id, (user) ->
+            user[types] (got) ->
+                if types == 'tracks'
+                    root.current_set = (t.id for t in got)
+                res.end render_ user_resource_views[types], got
     else if matched = req.url.match /\/users\/(\d+)/
         res.setHeader 'Content-Type', 'text/html'
         sc.users.get Number(matched[1]), (user) ->
