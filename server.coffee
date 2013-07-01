@@ -68,7 +68,7 @@ setSystemVolume = (v) ->
     exec "amixer -M set PCM #{ v }%"
 
 render_base = (options) -> jade.compile(fs.readFileSync('views/base.jade').toString())(options)
-render_now_playing = -> jade.compile(fs.readFileSync('views/now_playing.jade').toString())({song: root.now_playing})
+render_now_playing = -> jade.compile(fs.readFileSync('views/now_playing.jade').toString())({track: root.now_playing})
 render_ = (type, data) ->
     type_data = {}; type_data[type] = data
     jade.compile(fs.readFileSync("views/#{ type }.jade").toString())(type_data)
@@ -80,6 +80,10 @@ user_resource_views =
     favorites: 'tracks'
     followings: 'users'
     followers: 'users'
+
+track_resource_views =
+    comments: 'comments'
+    favoriters: 'users'
 
 #
 # Main server
@@ -135,6 +139,7 @@ server = http.createServer (req, res) ->
         else
             res.end '<div class="error">Error loading now playing</div>'
 
+    # User views
     else if matched = req.url.match /\/users\/(\d+)\/(\w+)/
         res.setHeader 'Content-Type', 'text/html'
         user_id = Number matched[1]
@@ -150,6 +155,15 @@ server = http.createServer (req, res) ->
             res.end render_ 'user', user
 
     # Track views
+    else if matched = req.url.match /\/tracks\/(\d+)\/(\w+)/
+        res.setHeader 'Content-Type', 'text/html'
+        track_id = Number matched[1]
+        types = matched[2]
+        sc.tracks.get track_id, (track) ->
+            track[types] (got) ->
+                if types == 'tracks'
+                    root.current_set = (t.id for t in got)
+                res.end render_ track_resource_views[types], got
     else if matched = req.url.match /\/tracks\/(\d+)/
         res.setHeader 'Content-Type', 'text/html'
         sc.tracks.get Number(matched[1]), (track) ->

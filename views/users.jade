@@ -1,5 +1,5 @@
 ul
     each user in users
         li: a.user(href="/users/#{ user.id }")
-            img(src=user.avatar_url)
+            img.mini-avatar(src=user.avatar_url)
             strong= user.username
