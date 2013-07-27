@@ -25,19 +25,6 @@ $ ->
         load_favorites()
         close_menu()
 
-    # Searching
-    window.search_type = 'tracks'
-    window.load_search = (q) ->
-        param_str = decodeURIComponent $.param
-            q: q
-            type: window.search_type
-        load_content "/search?#{ param_str }"
-    $('.search').on 'submit', (e) ->
-        e.preventDefault()
-        load_search $('.search input').val()
-        $('.search input').blur()
-        close_menu()
-
     # Side menu
 
     # Volume changer
@@ -100,7 +87,19 @@ class MainView extends Backbone.View
         hammer.on 'tap', 'a.last', (e) -> $.get '/last', load_now_playing
         hammer.on 'tap', 'a.stop', (e) -> $.get '/stop', -> $('#now_playing').empty()
         hammer.on 'tap', 'a.refresh', (e) -> location.reload(true)
+        # Searching
+        @search_type = 'tracks'
+        $('.search').on 'submit', (e) ->
+            e.preventDefault()
+            self.load_search $('.search input').val()
+            $('.search input').blur()
+            close_menu()
 
+    load_search: (q) ->
+        param_str = decodeURIComponent $.param
+            q: q
+            type: @search_type
+        @load_content "/search?#{ param_str }"
 
     open_menu: -> $('#content').addClass('opened')
     close_menu: -> $('#content').removeClass('opened')
