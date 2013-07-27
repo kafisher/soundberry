@@ -73,6 +73,8 @@ class MainView extends Backbone.View
         self = this
         @$el.on 'click', 'a', (e) -> e.preventDefault()
         hammer.on 'tap', 'a', (e) ->
+            if $(this).attr('target') == '_blank'
+                return
             if $(this).attr('href')
                 e.preventDefault()
                 e.stopPropagation()

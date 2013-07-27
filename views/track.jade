@@ -1,6 +1,7 @@
 .block.track
     .right
         a.play(data-track_id=track.id): i.icon-play
+        a(href=track.permalink_url, target="_blank"): i.icon-cloud
     a(href="/users/#{ track.user.id }")= track.user.username
     img.avatar(src=track.artwork_url)
     .details
