@@ -62,6 +62,25 @@ class User extends Type
         @followers = getattr User, @path "followers"
         @followings = getattr User, @path "followings"
         @comments = getattr Comment, @path "comments"
+    stream: (callback) ->
+        if @_stream?
+            callback @_stream
+        else
+            _tracks = []
+            @followings (followings) ->
+                done_followings = 0
+                for following in followings
+                    following.tracks (tracks) ->
+                        done_tracks = 0
+                        for track in tracks
+                            _tracks.push track
+                            if ++done_tracks == tracks.length
+                                console.log "now done with #{ done_tracks }"
+                                if ++done_followings == followings.length
+                                    console.log "Ah and done with #{ done_followings }"
+                                    @_stream = _tracks
+                                    callback @_stream
+
 
 class Track extends Type
     type: 'track'
