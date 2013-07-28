@@ -97,14 +97,24 @@ server = http.createServer (req, res) ->
     if pathname == '/'
         res.setHeader 'Content-Type', 'text/html'
         res.end render_base query
+    else if req.url == '/stream'
+        res.setHeader 'Content-Type', 'text/html'
+        if root.stream?
+            root.current_set = (t.id for t in root.stream)
+            res.end render_ 'tracks', root.stream
+        else
+            root.me.stream (stream) ->
+                root.current_set = (t.id for t in stream)
+                root.stream = stream
+                res.end render_ 'tracks', root.stream
     else if req.url == '/favorites'
         res.setHeader 'Content-Type', 'text/html'
         if root.favorites?
-            root.current_set = (f.id for f in root.favorites)
+            root.current_set = (t.id for t in root.favorites)
             res.end render_ 'tracks', root.favorites
         else
             root.me.favorites (favorites) ->
-                root.current_set = (f.id for f in favorites)
+                root.current_set = (t.id for t in favorites)
                 root.favorites = favorites
                 res.end render_ 'tracks', root.favorites
     else if req.url == '/followers'
@@ -130,7 +140,7 @@ server = http.createServer (req, res) ->
         type_class.search query.q, (found) ->
             root.searched = found
             if query.type == 'tracks'
-                root.current_set = (f.id for f in found)
+                root.current_set = (t.id for t in found)
             res.end render_ query.type, found
     else if req.url == '/now_playing'
         res.setHeader 'Content-Type', 'text/html'
