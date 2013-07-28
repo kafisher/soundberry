@@ -62,25 +62,38 @@ class User extends Type
         @followers = getattr User, @path "followers"
         @followings = getattr User, @path "followings"
         @comments = getattr Comment, @path "comments"
-    stream: (callback) ->
-        if @_stream?
+    stream: (callback, cache=true) ->
+        if @_stream? and cache
             callback @_stream
         else
             _tracks = []
-            @followings (followings) ->
+            @followings (followings) =>
                 done_followings = 0
                 for following in followings
-                    following.tracks (tracks) ->
-                        done_tracks = 0
-                        for track in tracks
-                            _tracks.push track
-                            if ++done_tracks == tracks.length
-                                console.log "now done with #{ done_tracks }"
-                                if ++done_followings == followings.length
-                                    console.log "Ah and done with #{ done_followings }"
-                                    @_stream = _tracks
-                                    callback @_stream
+                    if following.track_count == 0
+                        ++done_followings
+                    else
+                        following.tracks (tracks) =>
+                            done_tracks = 0
+                            console.log "#{ tracks.length } tracks to retreive"
+                            for track in tracks
+                                _tracks.push track
+                                if ++done_tracks == tracks.length
+                                    console.log "now done with #{ done_tracks } (that's #{ done_followings } followings)"
+                                    if ++done_followings == followings.length
+                                        console.log "Ah and done with #{ done_followings }"
+                                        @_stream = _tracks.sort(datesorton('created_at')).reverse()
+                                        callback @_stream
 
+datesorton = (param) ->
+    (a, b) ->
+        da = new Date a[param]
+        db = new Date b[param]
+        if da<db
+            return -1
+        if da>db
+            return 1
+        return 0
 
 class Track extends Type
     type: 'track'
@@ -116,7 +129,8 @@ class Resource
 users = new Resource 'users', User
 tracks = new Resource 'tracks', Track
 
-#users.get 929224, (user) ->
+users.get 929224, (user) ->
+    exports.me = user
     #console.log "Got the user: #{user.username}"
     #user.favorites (favorites) ->
         #console.log "Favorites (#{favorites.length}): " + (f.title for f in favorites).join ', '
