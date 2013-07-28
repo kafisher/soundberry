@@ -129,8 +129,7 @@ class Resource
 users = new Resource 'users', User
 tracks = new Resource 'tracks', Track
 
-users.get 929224, (user) ->
-    exports.me = user
+#users.get 929224, (user) ->
     #console.log "Got the user: #{user.username}"
     #user.favorites (favorites) ->
         #console.log "Favorites (#{favorites.length}): " + (f.title for f in favorites).join ', '
