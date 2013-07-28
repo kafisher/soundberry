@@ -21,12 +21,6 @@ $ ->
     load_now_playing()
     setInterval load_now_playing, 1000*10
 
-    $('a.load-favorites').on 'click', ->
-        load_favorites()
-        close_menu()
-
-    # Side menu
-
     # Volume changer
     window.volume_change_timer = null
     $('input[name=volume]').on 'change', (e) ->
@@ -39,9 +33,6 @@ $ ->
         $.get "/volume/#{ $(this).val() }"
 
     # Initialization
-    #open_menu()
-    #load_favorites()
-    console.log 'loaded?'
     window.router = new MainRouter()
     window.main_view = new MainView()
     Backbone.history.start()
@@ -52,12 +43,12 @@ chooseTab = ($tab) ->
 
 class MainView extends Backbone.View
     initialize: ->
-        router.navigate '/users/56303', true
         @menu_open = false
         @$el = $('body')
         hammer = @$el.hammer()
         hammer.on 'tap', 'a.menu', @toggle_menu
         self = this
+        # Event delegation
         @$el.on 'click', 'a', (e) -> e.preventDefault()
         hammer.on 'tap', 'a', (e) ->
             if $(this).attr('target') == '_blank'
@@ -65,7 +56,6 @@ class MainView extends Backbone.View
             if $(this).attr('href')
                 e.preventDefault()
                 e.stopPropagation()
-                console.log "tapped #{ $(this).attr('href') }"
                 router.navigate $(this).attr('href'), true
                 self.close_menu()
         hammer.on 'hold', 'a.track', (e) ->
@@ -75,9 +65,8 @@ class MainView extends Backbone.View
             $('a.tab').removeClass('selected')
             $(this).addClass('selected')
         hammer.on 'hold', 'a', ->
-            console.log "held #{ $(this).attr('href') }"
         hammer.on 'tap', '.search a.btn-mini', ->
-            window.search_type = $(this).attr('id').split('-')[2]
+            self.search_type = $(this).attr('id').split('-')[2]
             $('.search a.btn-mini').removeClass('selected')
             $(this).addClass('selected')
         # Playback buttons
@@ -93,7 +82,6 @@ class MainView extends Backbone.View
             e.preventDefault()
             self.load_search $('.search input').val()
             $('.search input').blur()
-            close_menu()
 
     load_search: (q) ->
         param_str = decodeURIComponent $.param
@@ -101,18 +89,15 @@ class MainView extends Backbone.View
             type: @search_type
         @load_content "/search?#{ param_str }"
 
-    open_menu: -> $('#content').addClass('opened')
-    close_menu: -> $('#content').removeClass('opened')
-    toggle_menu: (e) ->
+    open_menu: -> $('#content').addClass('opened'); @menu_open = true
+    close_menu: -> $('#content').removeClass('opened'); @menu_open = false
+    toggle_menu: (e) =>
         e.preventDefault()
         e.stopPropagation()
-        if @menu_open
-            close_menu()
-        else
-            open_menu()
-        window.menu_open = !window.menu_open
-    #
-    # Set up loader
+        if @menu_open then @close_menu() else @open_menu()
+
+    # Loading indicator
+    
     show_loading: ($container) ->
         $container.css
             'min-height': $(window).height() - $container.offset().top
@@ -127,11 +112,9 @@ class MainView extends Backbone.View
             left: $loading.width()/2 - 16
             top: $loading.height()/2 - 16
     hide_loading: ($container) ->
-        setTimeout =>
-            $loading = $container.find('.loading')
-            $loading.fadeOut =>
-                $loading.remove()
-        , 500
+        $loading = $container.find('.loading')
+        $loading.fadeOut =>
+            $loading.remove()
 
     load_content: (content_url, into, cb) ->
         if @current_content_url == content_url
@@ -141,38 +124,32 @@ class MainView extends Backbone.View
         $container = if into? then into else $('.container')
         $container.empty()
         @show_loading $container
+        @close_menu()
         $.get content_url, (data) =>
             $container.html(data)
-            console.log $container
             @hide_loading $container
             cb() if cb?
-    load_favorites: -> @load_content '/favorites'
 
 class MainRouter extends Backbone.Router
     routes:
-        '': 'show_favorites'
-        'favorites': 'show_favorites'
-        ':type/:obj_id/:sub_type': 'show_sub_res'
-        ':type/:obj_id': 'show_obj'
-        ':type': 'show_res'
+        ':res/:obj_id/:sub_res': 'show_sub_res'
+        ':res/:obj_id': 'show_obj'
+        ':res': 'show_res'
+        '': 'show_res'
     initialize: ->
-        @on 'route:show_favorites', ->
-            console.log 'yes the favorite'
-            main_view.load_favorites()
         @on 'route:show_res', (res) ->
-            console.log 'some res then'
+            res = 'favorites' if !res?
             main_view.load_content "/#{ res }"
-        @on 'route:show_obj', (type, obj_id) ->
-            console.log 'ah an obj'
-            main_view.load_content "/#{ type }/#{ obj_id }", undefined, =>
+        @on 'route:show_obj', (res, obj_id) ->
+            main_view.load_content "/#{ res }/#{ obj_id }", undefined, =>
                 if main_view.$el.find('.tabs')?
                     first_tab = main_view.$el.find('a.tab').first()
                     main_view.load_content first_tab.attr('href'), $('.tab-content')
                     chooseTab first_tab
-        @on 'route:show_sub_res', (type, obj_id, sub_type) ->
-            obj_url = "/#{ type }/#{ obj_id }"
-            sub_res_url = "/#{ type }/#{ obj_id }/#{ sub_type }"
-            if !main_view.current_content_url or !main_view.current_content_url.match "^/#{ type }/#{ obj_id }"
+        @on 'route:show_sub_res', (res, obj_id, sub_res) ->
+            obj_url = "/#{ res }/#{ obj_id }"
+            sub_res_url = "/#{ res }/#{ obj_id }/#{ sub_res }"
+            if !main_view.current_content_url or !main_view.current_content_url.match "^/#{ res }/#{ obj_id }"
                 main_view.load_content obj_url, undefined, =>
                     chooseTab $("a.tab[href=\"#{ sub_res_url }\"]")
                     main_view.load_content sub_res_url, $('.tab-content')
