@@ -218,10 +218,16 @@ a
         .tab
             width: 25%
 
+.tab-content
+    overflow-y: scroll
+    -webkit-overflow-scrolling: touch
+
 #content
     z-index: 200
     position: relative
     top: 0
+    overflow-y: scroll
+    -webkit-overflow-scrolling: touch
     -webkit-transform: translate3d(0,0,0)
     -webkit-transition: -webkit-transform 0.5s
     &.opened
@@ -247,6 +253,13 @@ img.avatar
     margin-right: 10px
 
 img.mini-avatar
+    position: relative
+    top: 5px
+    margin-left: 1px
+    margin-right: 7px
+    height: 20px
+
+img.artwork
     position: relative
     top: 5px
     margin-left: 1px

@@ -6,8 +6,7 @@ window.is_ios = is_iphone || is_ipad
 $ ->
     # Resizing (content height)
     handleResize = ->
-        $('#content').css
-            'min-height': ($(window).height())
+        $('#content').height $(window).height()
         $('#menu').height($(window).height())
     $(window).on 'resize', handleResize
     handleResize()
@@ -99,8 +98,7 @@ class MainView extends Backbone.View
     # Loading indicator
     
     show_loading: ($container) ->
-        $container.css
-            'min-height': $(window).height() - $container.offset().top
+        $container.height $(window).height() - $container.offset().top
         $loading = $($('#loading-template').html())
         $loading.appendTo $container
         $loading.show()
