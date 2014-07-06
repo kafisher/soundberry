@@ -56,7 +56,7 @@ SoundBerry.interpolateVolumes = ->
         v = SoundBerry.startingVolume*(1-SoundBerry.mu)+SoundBerry.targetVolume*SoundBerry.mu
         setSystemVolume v
         SoundBerry.mu += SoundBerry.dmu
-        SoundBerry.interpolationTimeout = setTimeout interpolateVolumes, 150
+        SoundBerry.interpolationTimeout = setTimeout SoundBerry.interpolateVolumes, 150
 
 SoundBerry.setSystemVolume = (v) ->
     SoundBerry.currentVolume = v
