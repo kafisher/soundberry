@@ -21,6 +21,7 @@ play_track = (track, cb) ->
         cb() if not error
 
 play_next = (cb) ->
+    return if !root.current_set?
     now_index = root.current_set.indexOf root.now_playing.id
     sc.tracks.get root.current_set[now_index + 1], (track) ->
         root.now_playing = track
