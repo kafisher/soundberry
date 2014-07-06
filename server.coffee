@@ -52,14 +52,13 @@ setVolume = (v) ->
     root.mu = 0
     root.targetVolume = v
     root.startingVolume = root.currentVolume
-    root.dmu = 0.15 * 100.0/Math.abs(root.targetVolume-root.startingVolume)
+    root.dmu = 0.25
     clearTimeout root.interpolationTimeout
     interpolateVolumes()
 
 interpolateVolumes = ->
-    if root.mu < 1.0
-        mu2 = (1-Math.cos(root.mu*Math.PI))/2
-        v = root.startingVolume*(1-mu2)+root.targetVolume*mu2
+    if root.mu <= 1.0
+        v = root.startingVolume*(1-root.mu)+root.targetVolume*root.mu
         setSystemVolume v
         root.mu += root.dmu
         root.interpolationTimeout = setTimeout interpolateVolumes, 150
@@ -67,6 +66,7 @@ interpolateVolumes = ->
 setSystemVolume = (v) ->
     root.currentVolume = v
     exec "amixer -M set PCM #{ v }%"
+    console.log "[setSystemVolume] #{ v }%"
 
 render_base = (options) -> jade.compile(fs.readFileSync('views/base.jade').toString())(options)
 render_now_playing = -> jade.compile(fs.readFileSync('views/now_playing.jade').toString())({track: root.now_playing})
@@ -198,11 +198,21 @@ server = http.createServer (req, res) ->
     else if req.url == '/stop'
         stop_playing()
         res.end 'stopped.'
+    else if req.url == '/current'
+        res.setHeader 'Content-Type', 'application/json'
+        res.end JSON.stringify root.now_playing
     else if req.url == '/status'
         res.end "playing #{ root.now_playing.title }."
-    else if matched = req.url.match /\/volume\/(\d+)/
-        setVolume Number(matched[1])
-        res.end "set volume to #{ matched[1] }%"
+    else if matched = req.url.match /\/volume\/(\+|-)?(\d+)/
+        vol_dir = matched[1]
+        vol_num = Number(matched[2])
+        vol_now = root.targetVolume || root.currentVolume
+        if vol_dir == '+'
+            vol_num = vol_now + vol_num
+        else if vol_dir == '-'
+            vol_num = vol_now - vol_num
+        setVolume vol_num
+        res.end "set volume to #{ vol_num }%"
 
     # Static files
     else if req.url == '/js/base.js'
