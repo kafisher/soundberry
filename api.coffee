@@ -68,6 +68,12 @@ SoundBerry.setSystemVolume = (v) ->
 
 soundberry_service = new barge.Service 'soundberry',
 
+    search: (kind, query, cb) ->
+        log "query.type is #{ kind }"
+        type_class = sc[kind]
+        type_class.search query, (found) ->
+            cb null, found
+
     play: (track_id, cb) ->
         SoundBerry.stopPlaying()
         sc.tracks.get track_id, (track) ->
