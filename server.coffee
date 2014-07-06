@@ -194,6 +194,10 @@ server = http.createServer (req, res) ->
             root.now_playing = track
             play_from_now()
             res.end "playing #{ root.now_playing.title }."
+    else if matched = req.url.match /\/list\/([\d,]+)/
+        root.current_set = matched[1].split(',').map(Number)
+        console.log('Set: ' + root.current_set)
+        res.end 'set ' + root.current_set.join(', ')
     else if req.url == '/next'
         stop_playing()
         play_next ->
