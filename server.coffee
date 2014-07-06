@@ -93,6 +93,7 @@ server = http.createServer (req, res) ->
     url_parsed = url.parse(req.url, true)
     query = url_parsed.query
     pathname = url_parsed.pathname
+    res.setHeader 'Access-Control-Allow-Origin', '*'
 
     # Base & song lists
     if pathname == '/'
@@ -134,6 +135,12 @@ server = http.createServer (req, res) ->
             root.me.followings (followings) ->
                 root.followings = followings
                 res.end render_ 'users', root.followings
+    else if pathname == '/search.json'
+        res.setHeader 'Content-Type', 'application/json'
+        log "query.type is #{ query.type }"
+        type_class = sc[query.type]
+        type_class.search query.q, (found) ->
+            res.end JSON.stringify found
     else if pathname == '/search'
         res.setHeader 'Content-Type', 'text/html'
         log "query.type is #{ query.type }"
