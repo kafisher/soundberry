@@ -7,6 +7,7 @@ SoundBerry =
     play_process: null
     interpolationTimeout: null
     currentVolume: 50
+    current_set: []
 
 # Playback
 # --------------------------------------------------------------------------------
@@ -18,7 +19,7 @@ SoundBerry.playTrack = (track, cb) ->
         cb() if not error
 
 SoundBerry.playNext = (cb) ->
-    return if !SoundBerry.current_set?
+    return if !SoundBerry.current_set.length
     now_index = SoundBerry.current_set.indexOf SoundBerry.now_playing.id
     sc.tracks.get SoundBerry.current_set[now_index + 1], (track) ->
         SoundBerry.now_playing = track
@@ -81,6 +82,10 @@ soundberry_service = new barge.Service 'soundberry',
             SoundBerry.playFromNow()
             cb null, "playing #{ SoundBerry.now_playing.title }."
 
+    queue: (track_id, cb) ->
+        SoundBerry.current_set.push track_id
+        cb null, 'set ' + SoundBerry.current_set.join(', ')
+
     setPlaylist: (track_ids, cb) ->
         SoundBerry.current_set = track_ids
         console.log('Set: ' + SoundBerry.current_set)
@@ -100,8 +105,11 @@ soundberry_service = new barge.Service 'soundberry',
         SoundBerry.stopPlaying()
         cb null, 'stopped.'
 
-    current: (cb) ->
+    nowPlaying: (cb) ->
         cb null, SoundBerry.now_playing
+
+    currentSet: (cb) ->
+        cb null, SoundBerry.current_set
 
     status: (cb) ->
         cb null, "playing #{ SoundBerry.now_playing.title }."
