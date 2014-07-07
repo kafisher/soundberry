@@ -20,7 +20,12 @@ SoundBerry.playTrack = (track, cb) ->
 
 SoundBerry.playNext = (cb) ->
     return if !SoundBerry.current_set.length
-    now_index = SoundBerry.current_set.indexOf(SoundBerry.now_playing.id) || -1
+    if !SoundBerry.now_playing
+        now_index = -1
+    else
+        now_index = SoundBerry.current_set.indexOf SoundBerry.now_playing.id
+        if now_index >= SoundBerry.current_set.length
+            now_index = -1
     sc.tracks.get SoundBerry.current_set[now_index + 1], (track) ->
         SoundBerry.now_playing = track
         SoundBerry.playFromNow()
