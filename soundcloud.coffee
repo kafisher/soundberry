@@ -147,3 +147,10 @@ exports.consumer_key = consumer_key
 exports.users = users
 exports.tracks = tracks
 exports.fetch_data = fetch_data
+
+if require.main == module
+    barge = require '../barge/src'
+    soundcloud_service = new barge.Service 'soundcloud',
+        users: users
+        tracks: tracks
+
