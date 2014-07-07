@@ -23,7 +23,7 @@ SoundBerry.playNext = (cb) ->
     now_index = SoundBerry.current_set.indexOf SoundBerry.now_playing.id
     sc.tracks.get SoundBerry.current_set[now_index + 1], (track) ->
         SoundBerry.now_playing = track
-        playFromNow()
+        SoundBerry.playFromNow()
         cb() if cb?
 
 SoundBerry.playLast = (cb) ->
