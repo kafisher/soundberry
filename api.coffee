@@ -2,6 +2,7 @@ sc = require './soundcloud'
 exec = require('child_process').exec
 log = require './log'
 barge = require 'barge'
+_ = require 'underscore'
 
 SoundBerry =
     play_process: null
@@ -76,14 +77,15 @@ soundberry_service = new barge.Service 'soundberry',
 
     search: (kind, query, cb) ->
         if arguments.length != 3
-            return cb "Usage: search {tracks or users} {query}"
+            cb = _.find(arguments, _.isFunction)
+            return cb "Usage: search {tracks/users} {query}"
         log "query.type is #{ kind }"
         type_class = sc[kind]
-        type_class.search query, (found) ->
-            cb null, found
+        type_class.search query, cb
 
     play: (track_id, cb) ->
         if arguments.length != 2
+            cb = _.find(arguments, _.isFunction)
             return cb "Usage: play {track id}"
         SoundBerry.stopPlaying()
         sc.tracks.get track_id, (err, track) ->
@@ -93,6 +95,7 @@ soundberry_service = new barge.Service 'soundberry',
 
     queue: (track_id, cb) ->
         if arguments.length != 2
+            cb = _.find(arguments, _.isFunction)
             return cb "Usage: queue {track id}"
         SoundBerry.current_set.push track_id
         cb null, 'set ' + SoundBerry.current_set.join(', ')
@@ -126,6 +129,9 @@ soundberry_service = new barge.Service 'soundberry',
         cb null, "playing #{ SoundBerry.now_playing.title }."
 
     volume: (vol, cb) ->
+        if arguments.length != 2
+            cb = _.find(arguments, _.isFunction)
+            return cb "Usage: volume [+/-]{n}"
         if typeof vol == 'number'
             vol_num = vol
         else if typeof vol == 'string'
