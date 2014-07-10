@@ -18,7 +18,7 @@ combine_objs = (a, b) ->
 chunk_length = 50
 default_limit = 50
 
-fetch_data = (path, args, callback, offset=0, limit=default_limit) ->
+fetch_data = (path, args, cb, offset=0, limit=default_limit) ->
     query_args = combine_objs default_args, {offset: offset}
     query_args = combine_objs query_args, args if args?
     query_string = qs.stringify query_args
@@ -30,11 +30,11 @@ fetch_data = (path, args, callback, offset=0, limit=default_limit) ->
         else
             data_part = JSON.parse data
             if (data_part.length == chunk_length) and (offset + chunk_length < limit)
-                with_more = (more_data) ->
-                    callback data_part.concat more_data
+                with_more = (err, more_data) ->
+                    cb null, data_part.concat more_data
                 fetch_data path, args, with_more, offset + chunk_length
             else
-                callback data_part
+                cb null, data_part
 
 as = (type, thing) ->
     if thing instanceof Array
@@ -50,9 +50,9 @@ class Type
     params: ->
 
 getattr = (type, path) ->
-    (callback) ->
-        fetch_data path, {}, (result) ->
-            callback as type, result
+    (cb) ->
+        fetch_data path, {}, (err, result) ->
+            cb null, as type, result
 
 class User extends Type
     type: 'user'
@@ -62,18 +62,18 @@ class User extends Type
         @followers = getattr User, @path "followers"
         @followings = getattr User, @path "followings"
         @comments = getattr Comment, @path "comments"
-    stream: (callback, cache=true) ->
+    stream: (cb, cache=true) ->
         if @_stream? and cache
-            callback @_stream
+            cb null, @_stream
         else
             _tracks = []
-            @followings (followings) =>
+            @followings (err, followings) =>
                 done_followings = 0
                 for following in followings
                     if following.track_count == 0
                         ++done_followings
                     else
-                        following.tracks (tracks) =>
+                        following.tracks (err, tracks) =>
                             done_tracks = 0
                             console.log "#{ tracks.length } tracks to retreive"
                             for track in tracks
@@ -83,7 +83,7 @@ class User extends Type
                                     if ++done_followings == followings.length
                                         console.log "Ah and done with #{ done_followings }"
                                         @_stream = _tracks.sort(datesorton('created_at')).reverse()
-                                        callback @_stream
+                                        cb null, @_stream
 
 datesorton = (param) ->
     (a, b) ->
@@ -107,39 +107,39 @@ class Comment extends Type
 class Resource
     constructor: (@name, @type) ->
     cache: {}
-    get: (id, callback) ->
+    get: (id, cb) ->
         if @cache[id]
-            if callback?
-                callback @cache[id]
+            if cb?
+                cb null, @cache[id]
             else
                 return @cache[id]
-        else fetch_data "#{@name}/#{id}", {}, (fetched) =>
+        else fetch_data "#{@name}/#{id}", {}, (err, fetched) =>
             o = new @type fetched
             @cache[o.id] = o
-            callback o
-    search: (q, callback) ->
-        fetch_data "#{@name}", {q: q}, (fetched) =>
+            cb null, o
+    search: (q, cb) ->
+        fetch_data "#{@name}", {q: q}, (err, fetched) =>
             fs = []
             for f in fetched
                 o = new @type f
                 @cache[o.id] = o
                 fs.push o
-            callback fs
+            cb null, fs
 
 users = new Resource 'users', User
 tracks = new Resource 'tracks', Track
 
-#users.get 929224, (user) ->
+#users.get 929224, (err, user) ->
     #console.log "Got the user: #{user.username}"
-    #user.favorites (favorites) ->
+    #user.favorites (err, favorites) ->
         #console.log "Favorites (#{favorites.length}): " + (f.title for f in favorites).join ', '
         #console.log favorites[0].user
         #console.log favorites[0].user.username
-    #user.followers (followers) ->
+    #user.followers (err, followers) ->
         #console.log "Followers (#{followers.length}): " + (f.username for f in followers).join ', '
-    #user.followings (followings) ->
+    #user.followings (err, followings) ->
         #console.log "Followings (#{followings.length}): " + (f.username for f in followings).join ', '
-    #user.comments (comments) ->
+    #user.comments (err, comments) ->
         #console.log "Comments (#{comments.length}): " + (c.body for c in comments).join ', '
         #console.log comments[0]
 
@@ -147,3 +147,10 @@ exports.consumer_key = consumer_key
 exports.users = users
 exports.tracks = tracks
 exports.fetch_data = fetch_data
+
+if require.main == module
+    barge = require '../barge/src'
+    soundcloud_service = new barge.Service 'soundcloud',
+        users: users
+        tracks: tracks
+

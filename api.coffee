@@ -26,14 +26,14 @@ SoundBerry.playNext = (cb) ->
         now_index = SoundBerry.current_set.indexOf SoundBerry.now_playing.id
         if now_index >= SoundBerry.current_set.length
             now_index = -1
-    sc.tracks.get SoundBerry.current_set[now_index + 1], (track) ->
+    sc.tracks.get SoundBerry.current_set[now_index + 1], (err, track) ->
         SoundBerry.now_playing = track
         SoundBerry.playFromNow()
         cb() if cb?
 
 SoundBerry.playLast = (cb) ->
     now_index = SoundBerry.current_set.indexOf SoundBerry.now_playing.id
-    sc.tracks.get SoundBerry.current_set[now_index - 1], (track) ->
+    sc.tracks.get SoundBerry.current_set[now_index - 1], (err, track) ->
         SoundBerry.now_playing = track
         SoundBerry.playFromNow()
         cb() if cb?
@@ -86,7 +86,7 @@ soundberry_service = new barge.Service 'soundberry',
         if arguments.length != 2
             return cb "Usage: play {track id}"
         SoundBerry.stopPlaying()
-        sc.tracks.get track_id, (track) ->
+        sc.tracks.get track_id, (err, track) ->
             SoundBerry.now_playing = track
             SoundBerry.playFromNow()
             cb null, "playing #{ SoundBerry.now_playing.title }."
