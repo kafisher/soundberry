@@ -20,7 +20,7 @@ SoundBerry.playTrack = (track, cb) ->
         cb() if not error
 
 SoundBerry.playNext = (cb) ->
-    return if !SoundBerry.current_set.length
+    return cb() if !SoundBerry.current_set.length
     if !SoundBerry.now_playing
         now_index = -1
     else
@@ -30,14 +30,15 @@ SoundBerry.playNext = (cb) ->
     sc.tracks.get SoundBerry.current_set[now_index + 1], (err, track) ->
         SoundBerry.now_playing = track
         SoundBerry.playFromNow()
-        cb() if cb?
+        cb(null, track) if cb?
 
 SoundBerry.playLast = (cb) ->
+    return cb() if !SoundBerry.current_set.length
     now_index = SoundBerry.current_set.indexOf SoundBerry.now_playing.id
     sc.tracks.get SoundBerry.current_set[now_index - 1], (err, track) ->
         SoundBerry.now_playing = track
         SoundBerry.playFromNow()
-        cb() if cb?
+        cb(null, track) if cb?
 
 SoundBerry.playFromNow = ->
     SoundBerry.playTrack SoundBerry.now_playing, SoundBerry.playNext
@@ -91,29 +92,29 @@ soundberry_service = new barge.Service 'soundberry',
         sc.tracks.get track_id, (err, track) ->
             SoundBerry.now_playing = track
             SoundBerry.playFromNow()
-            cb null, "playing #{ SoundBerry.now_playing.title }."
+            cb null, track
 
     queue: (track_id, cb) ->
         if arguments.length != 2
             cb = _.find(arguments, _.isFunction)
             return cb "Usage: queue {track id}"
         SoundBerry.current_set.push track_id
-        cb null, 'set ' + SoundBerry.current_set.join(', ')
+        cb null, SoundBerry.current_set
 
     setPlaylist: (track_ids, cb) ->
         SoundBerry.current_set = track_ids
         log('Set: ' + SoundBerry.current_set)
-        cb null, 'set ' + SoundBerry.current_set.join(', ')
+        cb null, SoundBerry.current_set
 
     next: (cb) ->
         SoundBerry.stopPlaying()
-        SoundBerry.playNext ->
-            cb null, 'nexted.'
+        SoundBerry.playNext (err, track) ->
+            cb null, track
 
     last: (cb) ->
         SoundBerry.stopPlaying()
-        SoundBerry.playLast ->
-            cb null, 'lasted.'
+        SoundBerry.playLast (err, track) ->
+            cb null, track
 
     stop: (cb) ->
         SoundBerry.stopPlaying()
@@ -146,7 +147,7 @@ soundberry_service = new barge.Service 'soundberry',
             else if vol_dir == '-'
                 vol_num = vol_now - vol_num
         SoundBerry.setVolume vol_num
-        cb null, "set volume to #{ vol_num }%"
+        cb null, vol_num
 
     state: (cb) ->
         cb null,
