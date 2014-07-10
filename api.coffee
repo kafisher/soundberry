@@ -129,9 +129,10 @@ soundberry_service = new barge.Service 'soundberry',
         cb null, "playing #{ SoundBerry.now_playing.title }."
 
     volume: (vol, cb) ->
+        vol_now = SoundBerry.targetVolume || SoundBerry.currentVolume
         if arguments.length != 2
-            cb = _.find(arguments, _.isFunction)
-            return cb "Usage: volume [+/-]{n}"
+            cb = vol
+            return cb null, vol_now
         if typeof vol == 'number'
             vol_num = vol
         else if typeof vol == 'string'
@@ -140,11 +141,15 @@ soundberry_service = new barge.Service 'soundberry',
                 vol_num = Number(vol[1..])
             else
                 vol_num = Number(vol)
-            vol_now = SoundBerry.targetVolume || SoundBerry.currentVolume
             if vol_dir == '+'
                 vol_num = vol_now + vol_num
             else if vol_dir == '-'
                 vol_num = vol_now - vol_num
         SoundBerry.setVolume vol_num
         cb null, "set volume to #{ vol_num }%"
+
+    state: (cb) ->
+        cb null,
+            volume: SoundBerry.targetVolume || SoundBerry.currentVolume
+            now_playing: SoundBerry.now_playing
 
