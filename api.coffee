@@ -67,7 +67,7 @@ SoundBerry.interpolateVolumes = ->
 SoundBerry.setSystemVolume = (v) ->
     SoundBerry.currentVolume = v
     exec "amixer -M set PCM #{ v }%"
-    console.log "[setSystemVolume] #{ v }%"
+    log "[setSystemVolume] #{ v }%"
 
 # Control methods
 # --------------------------------------------------------------------------------
@@ -75,12 +75,16 @@ SoundBerry.setSystemVolume = (v) ->
 soundberry_service = new barge.Service 'soundberry',
 
     search: (kind, query, cb) ->
+        if arguments.length != 3
+            return cb "Usage: search {tracks or users} {query}"
         log "query.type is #{ kind }"
         type_class = sc[kind]
         type_class.search query, (found) ->
             cb null, found
 
     play: (track_id, cb) ->
+        if arguments.length != 2
+            return cb "Usage: play {track id}"
         SoundBerry.stopPlaying()
         sc.tracks.get track_id, (track) ->
             SoundBerry.now_playing = track
@@ -88,12 +92,14 @@ soundberry_service = new barge.Service 'soundberry',
             cb null, "playing #{ SoundBerry.now_playing.title }."
 
     queue: (track_id, cb) ->
+        if arguments.length != 2
+            return cb "Usage: queue {track id}"
         SoundBerry.current_set.push track_id
         cb null, 'set ' + SoundBerry.current_set.join(', ')
 
     setPlaylist: (track_ids, cb) ->
         SoundBerry.current_set = track_ids
-        console.log('Set: ' + SoundBerry.current_set)
+        log('Set: ' + SoundBerry.current_set)
         cb null, 'set ' + SoundBerry.current_set.join(', ')
 
     next: (cb) ->
