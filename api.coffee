@@ -17,7 +17,7 @@ SoundBerry.playTrack = (track, cb) ->
     log "Playing #{ track.title }"
     stream_url = "#{ track.stream_url }?consumer_key=#{ sc.consumer_key }"
     SoundBerry.play_process = exec "mpg123 #{ stream_url }", (error, stdout, stderr) ->
-        cb() if not error
+        cb() if cb? && not error
 
 SoundBerry.playNext = (cb) ->
     return cb() if !SoundBerry.current_set.length

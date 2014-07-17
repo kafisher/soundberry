@@ -43,8 +43,8 @@ as = (type, thing) ->
         new type thing
 
 class Type
-    constructor: (@attrs) ->
-        this[attr] = value for attr, value of @attrs
+    constructor: (attrs) ->
+        this[attr] = value for attr, value of attrs
         @params()
     path: (to) -> "#{@type}s/#{@id}/#{to}"
     params: ->
@@ -98,7 +98,7 @@ datesorton = (param) ->
 class Track extends Type
     type: 'track'
     params: ->
-        @user = new User @attrs.user
+        @user = new User @user
         @favoriters = getattr User, @path "favoriters"
         @comments = getattr Comment, @path "comments"
 
