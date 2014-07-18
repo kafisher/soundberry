@@ -19,7 +19,7 @@ SoundBerry.playSong = (song, cb) ->
     SoundBerry.play_process = exec "mpg123 #{ stream_url }", (error, stdout, stderr) ->
         if error
         else
-            soundberry_service.emit 'change:state/song', song
+            soundberry_service.publish 'change:state/song', song
             cb() if cb?
 
 SoundBerry.playNext = (cb) ->
@@ -61,7 +61,7 @@ SoundBerry.setVolume = (v) ->
     SoundBerry.dmu = 0.25
     clearTimeout SoundBerry.interpolationTimeout
     SoundBerry.interpolateVolumes()
-    soundberry_service.emit 'change:state/volume', v
+    soundberry_service.publish 'change:state/volume', v
 
 SoundBerry.interpolateVolumes = ->
     if SoundBerry.mu <= 1.0
