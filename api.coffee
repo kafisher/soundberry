@@ -16,10 +16,11 @@ SoundBerry =
 SoundBerry.playSong = (song, cb) ->
     log "Playing #{ song.title }"
     stream_url = "#{ song.stream_url }?consumer_key=#{ sc.consumer_key }"
-    SoundBerry.play_process = exec "mpg123 #{ stream_url }", (error, stdout, stderr) ->
-        if error
+    soundberry_service.publish 'change:state/song', song
+    SoundBerry.play_process = exec "mpg123 #{ stream_url }", (err, stdout, stderr) ->
+        if err
+            console.log '[ERROR] ' + err
         else
-            soundberry_service.publish 'change:state/song', song
             cb() if cb?
 
 SoundBerry.playNext = (cb) ->
