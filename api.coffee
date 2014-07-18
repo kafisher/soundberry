@@ -1,7 +1,7 @@
 sc = require './soundcloud'
 exec = require('child_process').exec
 log = require './log'
-barge = require 'barge'
+barge = require 'barge/src'
 _ = require 'underscore'
 
 SoundBerry =
@@ -13,11 +13,14 @@ SoundBerry =
 # Playback
 # --------------------------------------------------------------------------------
 
-SoundBerry.playTrack = (track, cb) ->
-    log "Playing #{ track.title }"
-    stream_url = "#{ track.stream_url }?consumer_key=#{ sc.consumer_key }"
+SoundBerry.playSong = (song, cb) ->
+    log "Playing #{ song.title }"
+    stream_url = "#{ song.stream_url }?consumer_key=#{ sc.consumer_key }"
     SoundBerry.play_process = exec "mpg123 #{ stream_url }", (error, stdout, stderr) ->
-        cb() if cb? && not error
+        if error
+        else
+            soundberry_service.emit 'change:song', song
+            cb() if cb?
 
 SoundBerry.playNext = (cb) ->
     return cb() if !SoundBerry.current_set.length
@@ -27,21 +30,21 @@ SoundBerry.playNext = (cb) ->
         now_index = SoundBerry.current_set.indexOf SoundBerry.now_playing.id
         if now_index >= SoundBerry.current_set.length
             now_index = -1
-    sc.tracks.get SoundBerry.current_set[now_index + 1], (err, track) ->
-        SoundBerry.now_playing = track
+    sc.tracks.get SoundBerry.current_set[now_index + 1], (err, song) ->
+        SoundBerry.now_playing = song
         SoundBerry.playFromNow()
-        cb(null, track) if cb?
+        cb(null, song) if cb?
 
 SoundBerry.playPrevious = (cb) ->
     return cb() if !SoundBerry.current_set.length
     now_index = SoundBerry.current_set.indexOf SoundBerry.now_playing.id
-    sc.tracks.get SoundBerry.current_set[now_index - 1], (err, track) ->
-        SoundBerry.now_playing = track
+    sc.tracks.get SoundBerry.current_set[now_index - 1], (err, song) ->
+        SoundBerry.now_playing = song
         SoundBerry.playFromNow()
-        cb(null, track) if cb?
+        cb(null, song) if cb?
 
 SoundBerry.playFromNow = ->
-    SoundBerry.playTrack SoundBerry.now_playing, SoundBerry.playNext
+    SoundBerry.playSong SoundBerry.now_playing, SoundBerry.playNext
 
 SoundBerry.stopPlaying = ->
     if SoundBerry.play_process?
@@ -58,6 +61,7 @@ SoundBerry.setVolume = (v) ->
     SoundBerry.dmu = 0.25
     clearTimeout SoundBerry.interpolationTimeout
     SoundBerry.interpolateVolumes()
+    soundberry_service.emit 'change:volume', v
 
 SoundBerry.interpolateVolumes = ->
     if SoundBerry.mu <= 1.0
@@ -79,42 +83,42 @@ soundberry_service = new barge.Service 'soundberry',
     search: (kind, query, cb) ->
         if arguments.length != 3
             cb = _.find(arguments, _.isFunction)
-            return cb "Usage: search {tracks/users} {query}"
+            return cb "Usage: search {songs/users} {query}"
         log "query.type is #{ kind }"
         type_class = sc[kind]
         type_class.search query, cb
 
-    play: (track_id, cb) ->
+    play: (song_id, cb) ->
         if arguments.length != 2
             cb = _.find(arguments, _.isFunction)
-            return cb "Usage: play {track id}"
+            return cb "Usage: play {song id}"
         SoundBerry.stopPlaying()
-        sc.tracks.get track_id, (err, track) ->
-            SoundBerry.now_playing = track
+        sc.tracks.get song_id, (err, song) ->
+            SoundBerry.now_playing = song
             SoundBerry.playFromNow()
-            cb null, track
+            cb null, song
 
-    queue: (track_id, cb) ->
+    queue: (song_id, cb) ->
         if arguments.length != 2
             cb = _.find(arguments, _.isFunction)
-            return cb "Usage: queue {track id}"
-        SoundBerry.current_set.push track_id
+            return cb "Usage: queue {song id}"
+        SoundBerry.current_set.push song_id
         cb null, SoundBerry.current_set
 
-    setPlaylist: (track_ids, cb) ->
-        SoundBerry.current_set = track_ids
+    setPlaylist: (song_ids, cb) ->
+        SoundBerry.current_set = song_ids
         log('Set: ' + SoundBerry.current_set)
         cb null, SoundBerry.current_set
 
     next: (cb) ->
         SoundBerry.stopPlaying()
-        SoundBerry.playNext (err, track) ->
-            cb null, track
+        SoundBerry.playNext (err, song) ->
+            cb null, song
 
     previous: (cb) ->
         SoundBerry.stopPlaying()
-        SoundBerry.playPrevious (err, track) ->
-            cb null, track
+        SoundBerry.playPrevious (err, song) ->
+            cb null, song
 
     stop: (cb) ->
         SoundBerry.stopPlaying()
