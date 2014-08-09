@@ -1,7 +1,7 @@
 sc = require './soundcloud'
 exec = require('child_process').exec
 log = require './log'
-barge = require 'barge/src'
+somata = require 'somata'
 _ = require 'underscore'
 
 SoundBerry =
@@ -79,7 +79,7 @@ SoundBerry.setSystemVolume = (v) ->
 # Control methods
 # --------------------------------------------------------------------------------
 
-soundberry_service = new barge.Service 'soundberry',
+soundberry_service = new somata.Service 'soundberry',
 
     search: (kind, query, cb) ->
         if arguments.length != 3
