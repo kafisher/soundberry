@@ -15,6 +15,7 @@ SoundBerry =
 
 SoundBerry.playSong = (song, cb) ->
     log "Playing #{ song.title }"
+
     stream_url = "#{ song.stream_url }?consumer_key=#{ sc.consumer_key }"
     soundberry_service.publish 'change:state/song', song
     SoundBerry.play_process = exec "mpg123 #{ stream_url }", (err, stdout, stderr) ->
@@ -22,6 +23,7 @@ SoundBerry.playSong = (song, cb) ->
             console.log '[ERROR] ' + err
         else
             cb() if cb?
+            
 
 SoundBerry.playNext = (cb) ->
     return cb() if !SoundBerry.current_set.length
@@ -76,6 +78,7 @@ SoundBerry.setSystemVolume = (v) ->
     exec "amixer -M set PCM #{ v }%"
     log "[setSystemVolume] #{ v }%"
 
+soundberry_client = new somata.Client
 # Control methods
 # --------------------------------------------------------------------------------
 
@@ -94,10 +97,9 @@ soundberry_service = new somata.Service 'soundberry',
             cb = _.find(arguments, _.isFunction)
             return cb "Usage: play {song id}"
         SoundBerry.stopPlaying()
-        sc.tracks.get song_id, (err, song) ->
+        soundberry_client.remote 'dj' , 'getPlaying', (err, current_song) ->
             SoundBerry.now_playing = song
-            SoundBerry.playFromNow()
-            cb null, song
+            SoundBerry.playSong song, cb
 
     queue: (song_id, cb) ->
         if arguments.length != 2
@@ -113,13 +115,13 @@ soundberry_service = new somata.Service 'soundberry',
 
     next: (cb) ->
         SoundBerry.stopPlaying()
-        SoundBerry.playNext (err, song) ->
-            cb null, song
+        soundberry_client.remote 'dj', 'getNext', (err, next_song) ->
+            SoundBerry.playSong next_song, cb
 
     previous: (cb) ->
         SoundBerry.stopPlaying()
-        SoundBerry.playPrevious (err, song) ->
-            cb null, song
+        soundberry_client.remote 'dj', 'getPrevious', (err, prev_song) ->
+            SoundBerry.playSong prev_song, cb
 
     stop: (cb) ->
         SoundBerry.stopPlaying()
